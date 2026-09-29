@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/database.ts migrate",
+    "db:lockdown": "tsx scripts/supabase-lockdown.ts",
     "seed": "tsx scripts/database.ts seed",
     "demo:reset": "tsx scripts/demo-reset.ts"
   },

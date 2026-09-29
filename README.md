@@ -108,7 +108,7 @@ The Playwright suite starts its own local server and isolated fictional database
 | Name                                                            | Local default           | Purpose                                                                                                                     |
 | --------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | `DATABASE_URL`                                                  | empty                   | Required hosted PostgreSQL URL on Vercel; use a pooled connection.                                                          |
-| `DATABASE_URL_UNPOOLED`                                         | empty                   | Optional direct URL used by migration/seed scripts.                                                                         |
+| `DATABASE_URL_UNPOOLED`                                         | empty                   | Optional direct or session-pooler URL used by migration/seed scripts.                                                        |
 | `DEMO_MODE`                                                     | `true`                  | Enables demo accounts, fixtures, and role switching. Set `false` for non-demo use.                                          |
 | `STORAGE_PROVIDER`                                              | `database`              | `database` stores private bytes in PostgreSQL; `vercel-blob` uses private Blob storage.                                     |
 | `BLOB_READ_WRITE_TOKEN`                                         | empty                   | Required if `STORAGE_PROVIDER=vercel-blob`.                                                                                 |
@@ -123,8 +123,18 @@ Copy `.env.example` and edit `.env.local`; both `.env.local` and `.data` are ign
 1. Create a Neon or Supabase PostgreSQL database. Obtain a **pooled** URL for `DATABASE_URL` and a direct URL for `DATABASE_URL_UNPOOLED` if available. For Supabase serverless connections, use its transaction pooler URL; use a direct or session-pooler URL for migrations. Do not use the embedded local database on Vercel.
 2. Import this GitHub repository into Vercel as a Next.js project. Set `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `DEMO_MODE=true` for a private SIH demo, and `APP_URL` to its HTTPS production origin. Leave optional OCR and Blob credentials blank for the fallback demo. For private Blob storage, also set `STORAGE_PROVIDER=vercel-blob` and its token.
 3. On a trusted machine, set the same database URLs in an untracked `.env.local`, then run `npm run db:migrate` and `npm run seed`. Seeding requires `DEMO_MODE=true`. It is idempotent and preserves records.
-4. On Supabase, block client Data API access to JanVidya tables. Disable their Data API exposure, or enable RLS on every public table with no client policies and remove `anon`/`authenticated` grants. JanVidya uses only its private server-side PostgreSQL connection. Verify the restrictions before publishing the URL. See [Supabase API security](https://supabase.com/docs/guides/api/securing-your-api) and [connection methods](https://supabase.com/docs/guides/database/connecting-to-postgres).
+4. On Supabase, connect as the dedicated `janvidya_runtime` table owner and run `npm run db:lockdown`. This enables RLS and removes `anon`/`authenticated` grants from every JanVidya-owned public table, then verifies the result. If you use another table owner, apply equivalent restrictions manually. JanVidya uses only its private server-side PostgreSQL connection. See [Supabase API security](https://supabase.com/docs/guides/api/securing-your-api) and [connection methods](https://supabase.com/docs/guides/database/connecting-to-postgres).
 5. Deploy or redeploy in Vercel. Verify `/`, `/demo`, role sign-in, a student application, document fixture, officer review, `/merit`, `/analytics`, and `/audit`. Set `APP_URL` to the final domain and redeploy if the domain changed.
+
+For Supabase, create a dedicated login role before step 3, then use `janvidya_runtime.<project_ref>` as the pooler username. The session pooler on port 5432 is suitable for migrations; the transaction pooler on port 6543 is suitable for Vercel runtime traffic. Both URLs need the role's strong password and TLS. The role setup for this deployment was:
+
+```sql
+CREATE ROLE janvidya_runtime LOGIN PASSWORD '<random-secret>';
+GRANT CONNECT, CREATE ON DATABASE postgres TO janvidya_runtime;
+GRANT USAGE, CREATE ON SCHEMA public TO janvidya_runtime;
+```
+
+`db:lockdown` only changes public tables owned by that role. The role owns JanVidya's tables, so server-side requests retain access while Supabase Data API clients have none.
 
 For real applicants, disable demo mode and provide an approved identity, storage, notification, security, and data-governance program before use. This prototype does not send actual payments or messages to external gateways.
 
