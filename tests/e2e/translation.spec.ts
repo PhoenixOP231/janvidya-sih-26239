@@ -92,6 +92,10 @@ test("Hindi covers public and role pages and preserves in-progress input", async
       await page.getByRole("tab", { name: "पात्रता", exact: true }).click();
       await expect(page.getByText(/शर्त पूरी/).first()).toBeVisible();
       await page.goto("/workspace");
+      await expect(page.locator("body")).toHaveAttribute("data-localized", "hi");
+      await expect(page.getByRole("heading", { level: 1 })).toContainText(
+        "आपकी नई यात्रा यहाँ से शुरू होती है।",
+      );
       await page.screenshot({
         path: "docs/screenshots/student-hindi.png",
         fullPage: true,

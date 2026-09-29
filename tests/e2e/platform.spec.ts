@@ -270,9 +270,14 @@ test("ministry analytics, filters, audit integrity and local assistant", async (
   const request = page.request;
   await post(request, "auth/demo", { role: "ministry_admin" });
   await page.goto("/workspace");
+  await ready(page);
   await expect(
     page.getByRole("heading", { name: "Opportunity, in perspective." }),
   ).toBeVisible();
+  await expect(page.locator(".recharts-area path").first()).toHaveAttribute(
+    "d",
+    /^M/,
+  );
   await page.screenshot({
     path: "docs/screenshots/ministry-dashboard.png",
     fullPage: true,
