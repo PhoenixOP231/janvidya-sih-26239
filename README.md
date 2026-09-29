@@ -120,10 +120,11 @@ Copy `.env.example` and edit `.env.local`; both `.env.local` and `.data` are ign
 
 ## Deploy to Vercel
 
-1. Create a Neon PostgreSQL database. Obtain a **pooled** URL for `DATABASE_URL` and a direct URL for `DATABASE_URL_UNPOOLED` if available. Do not use the embedded local database on Vercel.
+1. Create a Neon or Supabase PostgreSQL database. Obtain a **pooled** URL for `DATABASE_URL` and a direct URL for `DATABASE_URL_UNPOOLED` if available. For Supabase serverless connections, use its transaction pooler URL; use a direct or session-pooler URL for migrations. Do not use the embedded local database on Vercel.
 2. Import this GitHub repository into Vercel as a Next.js project. Set `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `DEMO_MODE=true` for a private SIH demo, and `APP_URL` to its HTTPS production origin. Leave optional OCR and Blob credentials blank for the fallback demo. For private Blob storage, also set `STORAGE_PROVIDER=vercel-blob` and its token.
 3. On a trusted machine, set the same database URLs in an untracked `.env.local`, then run `npm run db:migrate` and `npm run seed`. Seeding requires `DEMO_MODE=true`. It is idempotent and preserves records.
-4. Deploy or redeploy in Vercel. Verify `/`, `/demo`, role sign-in, a student application, document fixture, officer review, `/merit`, `/analytics`, and `/audit`. Set `APP_URL` to the final domain and redeploy if the domain changed.
+4. On Supabase, block client Data API access to JanVidya tables. Disable their Data API exposure, or enable RLS on every public table with no client policies and remove `anon`/`authenticated` grants. JanVidya uses only its private server-side PostgreSQL connection. Verify the restrictions before publishing the URL. See [Supabase API security](https://supabase.com/docs/guides/api/securing-your-api) and [connection methods](https://supabase.com/docs/guides/database/connecting-to-postgres).
+5. Deploy or redeploy in Vercel. Verify `/`, `/demo`, role sign-in, a student application, document fixture, officer review, `/merit`, `/analytics`, and `/audit`. Set `APP_URL` to the final domain and redeploy if the domain changed.
 
 For real applicants, disable demo mode and provide an approved identity, storage, notification, security, and data-governance program before use. This prototype does not send actual payments or messages to external gateways.
 
