@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.next-e2e/
+.vercel/
+.serena/
+.data/
+.env*
+!.env.example
+*.tsbuildinfo
+coverage/
+test-results/
+playwright-report/
+*.log
+.DS_Store
