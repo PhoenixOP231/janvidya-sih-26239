@@ -1,0 +1,10 @@
+.data/
+.next-e2e/
+.serena/
+test-results/
+playwright-report/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
