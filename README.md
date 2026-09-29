@@ -5,6 +5,8 @@ Smart India Hackathon 2026 · Problem Statement **26239** · Smart Education
 
 JanVidya is an independent, fictional prototype for the Ministry of Tribal Affairs challenge. It connects applications, document checks, explainable eligibility, human scrutiny, selection, and post-award tracking in one accessible workspace. It is **not** an official government service.
 
+**Live SIH demo:** [janvidya-sih-26239.vercel.app](https://janvidya-sih-26239.vercel.app/demo)
+
 ## Problem and solution
 
 Applicants repeat information across schemes and receive limited feedback when a document is missing or inconsistent. Officers must inspect large queues without a clear view of which cases need judgment. JanVidya gives students one account and a scheme-driven form; extracts evidence from documents; explains rule outcomes; routes exceptions to officers; and records each material decision. AI suggests, rules validate, humans decide.
